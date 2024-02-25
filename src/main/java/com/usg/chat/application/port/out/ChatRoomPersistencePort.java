@@ -14,7 +14,7 @@ public interface ChatRoomPersistencePort {
     //채팅방 생성할때 중복 확인을 위한 senderId receiverId 조회
     ChatRoomEntity findBySenderAndReceiver(Long senderId, Long receiverId);
 
-    ChatRoomEntity findById(Long chatRoomId);
+    Long findReceiverIdByChatRoomId(Long chatRoomId);
     // 채팅방 조회
     List<ChatRoom> findChatRooms(Long memberId);
 }

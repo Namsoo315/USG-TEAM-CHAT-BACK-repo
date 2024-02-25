@@ -11,16 +11,14 @@ import java.time.LocalDateTime;
 public class MessageDTO {
 
     private String message;
-    private Long senderId;
-    private Long receiverId;
+    private String receiverEmail;
     private LocalDateTime timestamp;
     private Long chatRoomId;
 
     @Builder
-    public MessageDTO (String message, Long senderId, Long receiverId, LocalDateTime timestamp,Long chatRoomId){
+    public MessageDTO (String message, String receiverEmail, LocalDateTime timestamp,Long chatRoomId){
         this.message = message;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+        this.receiverEmail = receiverEmail;
         this.timestamp = timestamp;
         this.chatRoomId = chatRoomId;
     }

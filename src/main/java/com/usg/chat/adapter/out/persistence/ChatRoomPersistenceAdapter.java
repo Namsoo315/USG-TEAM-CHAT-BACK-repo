@@ -1,5 +1,6 @@
 package com.usg.chat.adapter.out.persistence;
 
+import com.usg.chat.adapter.out.persistence.entity.Chat.ChatRepository;
 import com.usg.chat.adapter.out.persistence.entity.ChatRoom.ChatRoomRepository;
 import com.usg.chat.domain.ChatRoom;
 import com.usg.chat.adapter.out.persistence.entity.ChatRoom.ChatRoomEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter implements ChatRoomPersistencePort {
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatRepository chatRepository;
 
     // 채팅방 생성 후 DB저장
     @Override
@@ -51,9 +53,7 @@ public class ChatRoomPersistenceAdapter implements ChatRoomPersistencePort {
     }
 
     @Override
-    public ChatRoomEntity findById(Long chatRoomId){
-        return chatRoomRepository.findById(chatRoomId).orElseThrow(
-                () -> new IllegalAccessError("채팅방을 찾을 수 없습니다.")
-        );
+    public Long findReceiverIdByChatRoomId(Long chatRoomId){
+        return chatRepository.findReceiverIdByChatRoomId(chatRoomId);
     }
 }

@@ -1,9 +1,13 @@
 package com.usg.chat.adapter.in.web;
 
 import com.usg.chat.adapter.in.web.dto.Result;
+import com.usg.chat.adapter.in.web.token.MemberEmailGetter;
 import com.usg.chat.adapter.out.persistence.entity.Chat.ChatEntity;
 import com.usg.chat.application.port.in.Chat.GetMessageHistoryUseCase;
+import com.usg.chat.application.port.out.MemberPersistencePort;
 import com.usg.chat.domain.Chat;
+import com.usg.chat.domain.Member;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +19,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class GetMessageApiController {
     private final GetMessageHistoryUseCase getMessageHistoryUseCase;
+    private final MemberEmailGetter memberEmailGetter;
 
-    @GetMapping("/messages")
-    public ResponseEntity<Result<List<ChatEntity>>> getMessages(@RequestParam String senderEmail,
-                                                                @RequestParam String receiverEmail){
+    @GetMapping("api/messages")
+    public ResponseEntity<Result<List<ChatEntity>>> getMessages(@RequestParam String receiverEmail,
+                                                                HttpServletRequest servletRequest){
+        //로그인 한 회원 찾기
+        String senderEmail = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+
         List<Chat> Messages = getMessageHistoryUseCase.getMessages(senderEmail,receiverEmail);
+
         return ResponseEntity.ok(new Result(Messages));
     }
 }

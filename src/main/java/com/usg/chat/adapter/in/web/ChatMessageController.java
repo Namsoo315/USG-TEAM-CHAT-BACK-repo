@@ -2,8 +2,10 @@ package com.usg.chat.adapter.in.web;
 
 import com.usg.chat.adapter.in.web.dto.MessageDTO;
 import com.usg.chat.adapter.in.web.dto.Result;
+import com.usg.chat.adapter.in.web.token.MemberEmailGetter;
 import com.usg.chat.application.port.in.Chat.SaveChatCommand;
 import com.usg.chat.application.port.in.Chat.SaveChatUseCase;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,25 +23,30 @@ import java.time.LocalDateTime;
 public class ChatMessageController {
 
     private final SaveChatUseCase saveChatUseCase;
+    private final MemberEmailGetter memberEmailGetter;
 
     @MessageMapping("/chat/{chatRoomId}") // 채팅방 ID에 따라 주제 설정
     @SendTo("/topic/chat/{chatRoomId}") // 채팅방 ID에 따라 주제 설정
-    public ResponseEntity<Result> sendChat(@Payload MessageDTO message, @DestinationVariable Long chatRoomId) {
+    public ResponseEntity<Result> sendChat(@Payload MessageDTO message, HttpServletRequest servletRequest,
+                                           @DestinationVariable Long chatRoomId) {
+
         message.setTimestamp(LocalDateTime.now());  //메시지 전송 시간 설정
 
-        SaveChatCommand command = SaveChatCommand.builder()
-                .message(message.getMessage())
-                .senderId(message.getSenderId())
-                .receiverId(message.getReceiverId())
-                .timestamp(message.getTimestamp())
-                .chatRoomId(chatRoomId) // 채팅방 ID 설정
-                .build();
+        // Jwt에서 이메일 가져오기
+        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        SaveChatCommand command = requestToCommand(message,email,chatRoomId);
+        saveChatUseCase.saveMessage(command);
 
-        Long savedChatId = saveChatUseCase.saveMessage(command);
-
-        log.info("메시지 저장 완료: {}", savedChatId);
-        log.info("메시지 저장 완료: {}", savedChatId);
         return ResponseEntity.ok(new Result(message, "메시지 전송 및 저장 완료"));
+    }
+    private SaveChatCommand requestToCommand(MessageDTO messageDTO, String email, Long chatRoomId){
+        return SaveChatCommand.builder()
+                .message(messageDTO.getMessage())
+                .senderEmail(email)
+                .receiverEmail(messageDTO.getReceiverEmail())
+                .timestamp(messageDTO.getTimestamp())
+                .chatRoomId(chatRoomId)
+                .build();
     }
 
 }

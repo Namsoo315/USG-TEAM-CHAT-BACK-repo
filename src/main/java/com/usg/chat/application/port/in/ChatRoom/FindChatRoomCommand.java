@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ChatRoomCommand {
+public class FindChatRoomCommand {
     private String senderEmail;
     private String receiverEmail;
 
     @Builder
-    public ChatRoomCommand(String senderEmail, String receiverEmail) {
+    public FindChatRoomCommand(String senderEmail, String receiverEmail) {
         this.senderEmail = senderEmail;
         this.receiverEmail = receiverEmail;
     }

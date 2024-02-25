@@ -17,22 +17,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatService implements SaveChatUseCase {
 
     private final ChatPersistencePort chatPersistencePort;
+    private final MemberPersistencePort memberPersistencePort;
 
     @Override
     @Transactional
     public Long saveMessage(SaveChatCommand command){
-        Chat chat = commandToChat(command);
+        //센더와 리시버를 찾는 것.
+        Long senderId = memberPersistencePort.getIdByEmail(command.getSenderEmail());
+        Long receiverId = memberPersistencePort.getIdByEmail(command.getReceiverEmail());
+
+        //커맨드 등록
+        Chat chat = commandToChat(command, senderId,receiverId);
         Long savedChatId = chatPersistencePort.saveMessage(chat);
 
         return savedChatId;
     }
 
-    private Chat commandToChat(SaveChatCommand command){
+    private Chat commandToChat(SaveChatCommand command, Long senderId, Long receiverId){
         return Chat
                 .builder()
                 .message(command.getMessage())
-                .receiverId(command.getReceiverId())
-                .senderId(command.getSenderId())
+                .receiverId(senderId)
+                .senderId(receiverId)
                 .timestamp(command.getTimestamp())
                 .chatRoomId(command.getChatRoomId())
                 .build();

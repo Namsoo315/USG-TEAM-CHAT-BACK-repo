@@ -8,9 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatRoomRes {
     private Long chatRoomId;
+    private String opponentEmail;
+    private String opponentNickName;
 
     @Builder
-    public ChatRoomRes(Long chatRoomId){
+    public ChatRoomRes(Long chatRoomId,String opponentEmail , String opponentNickName){
      this.chatRoomId= chatRoomId;
+     this.opponentEmail =opponentEmail;
+     this.opponentNickName = opponentNickName;
     }
 }

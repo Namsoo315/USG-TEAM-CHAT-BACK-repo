@@ -8,4 +8,4 @@ Build : gradle
 
 packaging : jar
 
-dependency : Spring Start Web, Spring Data Jpa, Lombok, MYSQL, H2, Validation, Spring WebSocket
+dependency : Spring Start Web, Spring Data Jpa, Lombok, MYSQL, H2, Validation, Spring WebSocket, redis, kafka, STOMP, QueryDSL

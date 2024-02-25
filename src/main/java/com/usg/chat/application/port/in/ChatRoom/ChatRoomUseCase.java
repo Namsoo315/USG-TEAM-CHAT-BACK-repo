@@ -7,7 +7,6 @@ import java.util.List;
 public interface ChatRoomUseCase {
     // 채팅방 생성
     Long createChatRoom(ChatRoomCommand command);
-    // 채팅방 조회
 
 }
 
