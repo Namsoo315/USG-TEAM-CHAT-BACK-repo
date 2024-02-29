@@ -7,53 +7,49 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class MemberPersistenceAdapter implements MemberPersistencePort {
-    private final RedisTemplate<String, String> redisTemplate;
-    private final String RedisKeyPrefix = "member : ";
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final String RedisKeyPrefix = "member";
 
     @Override
     public void saveMember(Member member) {
-        String key = RedisKeyPrefix + member.getEmail();
-        String value = member.getMemberId() + ":" + member.getNickname();
-        redisTemplate.opsForValue().set(key, value);
+        String key = RedisKeyPrefix + ":" + member.getEmail();
+        Map<String, String> memberInfo = new HashMap<>();
+        memberInfo.put("id", String.valueOf(member.getMemberId()));
+        memberInfo.put("nickname", member.getNickname());
+        redisTemplate.opsForHash().putAll(key, memberInfo);
     }
 
     @Override
     public String getNicknameByEmail(String email) {
-        String key = RedisKeyPrefix + email;
-        String value = redisTemplate.opsForValue().get(key);
-        if (value != null) {
-            return value.split(":")[1];
-        }
-        return null;
+        String key = RedisKeyPrefix + ":" + email;
+        Object value = redisTemplate.opsForHash().get(key, "nickname");
+        return value != null ? (String) value : null;
     }
 
     @Override
     public Long getIdByEmail(String email) {
-        String key = RedisKeyPrefix + email;
-        String value = redisTemplate.opsForValue().get(key);
-        if (value != null) {
-            return Long.parseLong(value.split(":")[0]);
-        }
-        return null;
+        String key = RedisKeyPrefix + ":" + email;
+        Object value = redisTemplate.opsForHash().get(key, "id");
+        return value != null ? Long.parseLong((String) value) : null;
     }
 
-    //아이디를 통해 이메일 불러옴
     @Override
     public String getEmailById(Long id) {
-        for (String key : redisTemplate.keys(RedisKeyPrefix + "*")) {
-            String value = redisTemplate.opsForValue().get(key);
-            if (value != null) {
-                String[] parts = value.split(":");
-                if (parts.length == 2 && Long.parseLong(parts[0]) == id) {
-                    return key.substring(RedisKeyPrefix.length());
-                }
+        Set<String> keys = redisTemplate.keys(RedisKeyPrefix + ":*");
+        for (String key : keys) {
+            Object value = redisTemplate.opsForHash().get(key, "id");
+            if (value != null && Long.parseLong((String) value) == id) {
+                return key.substring((RedisKeyPrefix + ":").length());
             }
         }
         return null;
     }
-
 }
