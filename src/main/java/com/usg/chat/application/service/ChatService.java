@@ -37,8 +37,8 @@ public class ChatService implements SaveChatUseCase {
         return Chat
                 .builder()
                 .message(command.getMessage())
-                .receiverId(senderId)
-                .senderId(receiverId)
+                .receiverId(receiverId)
+                .senderId(senderId)
                 .timestamp(command.getTimestamp())
                 .chatRoomId(command.getChatRoomId())
                 .build();
